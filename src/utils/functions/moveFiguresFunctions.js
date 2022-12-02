@@ -45,21 +45,35 @@ function isEmptyDiagonal(currentBoard, item, cell) {
     return true;
 }
 
-function canBishopMove(item, cell) {
+function canBishopMove(currentBoard, item, cell) {
     if(item.figure.color === 'white') { 
         if(item.y === 2 && cell.y <= 4 && cell.y > item.y){
-            if(!cell.figure && item.x === cell.x || cell.figure && item.x === cell.x - 1 || cell.figure && item.x === cell.x + 1) return true;
+            if(!cell.figure && item.x === cell.x) {
+                if(!isEmptyVertical(currentBoard, item, cell)) return false;
+                return true;
+            }
+            if(item.y === cell.y - 1){
+                if((cell.figure && item.x === cell.x - 1) || (cell.figure && item.x === cell.x + 1)) return true;
                 return false;
             }
-            if(item.y !== 2 && cell.y === (item.y + 1) && cell.y > item.y) {
+            return false;
+        }
+        if(item.y !== 2 && cell.y === (item.y + 1) && cell.y > item.y) {
             if(!cell.figure && item.x === cell.x || cell.figure && item.x === cell.x - 1 || cell.figure && item.x === cell.x + 1) return true;
-                return false;
-            }
-                return false;
+            return false;
+        }
+        return false;
     }
     if(item.figure.color === 'black') {        
         if(item.y === 7 && cell.y >= 5 && cell.y < item.y){
-            if(!cell.figure && item.x === cell.x || cell.figure && item.x === cell.x - 1 || cell.figure && item.x === cell.x + 1) return true;
+            if(!cell.figure && item.x === cell.x) {
+                if(!isEmptyVertical(currentBoard, item, cell)) return false;
+                return true;
+            }
+            if(item.y === cell.y + 1) {
+                if(cell.figure && item.x === cell.x - 1 || cell.figure && item.x === cell.x + 1) return true;
+                return false;
+            }
             return false; 
         }
         if(item.y !== 7 && cell.y === (item.y - 1) && cell.y < item.y) {

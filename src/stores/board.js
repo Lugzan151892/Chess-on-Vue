@@ -86,7 +86,7 @@ export const useBoardStore = defineStore('board', () => {
     let highlightTurns = board.value.map((el)=> {
       if(el.figure && el.figure.color === item.figure.color) return el;
       if(item.figure.name === 'bishop') {
-        if(canBishopMove(item, el)) return {...el, isAvailable: true};
+        if(canBishopMove(board.value, item, el)) return {...el, isAvailable: true};
         return el;
       }
       if(item.figure.name === 'knight') {
