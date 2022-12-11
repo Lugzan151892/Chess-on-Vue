@@ -39,10 +39,10 @@ const createBoard = () => {
         if(el.x === 3 || el.x === 6) {
           return {...el, figure: figures.pawn_white}
         }
-        if(el.x === 5) {
+        if(el.x === 4) {
           return {...el, figure: figures.king_white}
         }
-        if(el.x === 4) {
+        if(el.x === 5) {
           return {...el, figure: figures.queen_white}
         }
       }

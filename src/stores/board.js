@@ -49,17 +49,14 @@ export const useBoardStore = defineStore('board', () => {
     isWhiteTurn.value = !isWhiteTurn.value
     updateBoard(boardState.value[currentTurn.value]);
     hideDeadFigures();
-    console.log(killedFigures.value);
   }
 
   function previousStep(){
     if(currentTurn.value === 0) return;
     currentTurn.value = currentTurn.value - 1;
     isWhiteTurn.value = !isWhiteTurn.value;
-    // checkKilledFigures();
     updateBoard(boardState.value[currentTurn.value]);
     hideDeadFigures();
-    console.log(killedFigures.value);
   }
 
   //This function is needed to render board after turn, without highlights
@@ -82,7 +79,7 @@ export const useBoardStore = defineStore('board', () => {
     boardState.value = boardState.value.slice(0, currentTurn.value + 1);
   }
 
-  function checkAvailableTurns(item) {
+  function checkAvailableTurns(item, checkCheck) {
     let highlightTurns = board.value.map((el)=> {
       if(el.figure && el.figure.color === item.figure.color) return el;
       if(item.figure.name === 'bishop') {
@@ -110,8 +107,13 @@ export const useBoardStore = defineStore('board', () => {
         return el;
       }
       return el;
-    });   
-    board.value = highlightTurns;
+    });
+    if(!checkCheck) {
+      board.value = highlightTurns;
+      return;
+    } else {
+      highlightTurns
+    }
   }
 
   //Show alert modal if it's not your turn now, hide it after 1s;
@@ -151,7 +153,7 @@ export const useBoardStore = defineStore('board', () => {
       return;
     }
     currentFigure.value = item;
-    checkAvailableTurns(item);
+    checkAvailableTurns(item, false);
   }
 
   function onDrop(event, item) {
@@ -167,7 +169,6 @@ export const useBoardStore = defineStore('board', () => {
     if(item.figure) {
       killedFigures.value = [...killedFigures.value, {...item.figure, turnNumber: currentTurn.value, isVisible: true}];
       deadFigures.value = killedFigures.value;
-      console.log(killedFigures.value);
     }
     if(boardState.value.length !== currentTurn.value + 1) {
       getNewState();
