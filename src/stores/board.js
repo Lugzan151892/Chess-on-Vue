@@ -12,6 +12,8 @@ export const useBoardStore = defineStore('board', () => {
   //Array of all turns in the game
   const boardState = ref([]);
 
+  const pawnMoves = ref([]);
+
   const killedFigures = ref([]);
   const deadFigures = ref([]);
   const currentFigure = ref(null);
@@ -19,6 +21,8 @@ export const useBoardStore = defineStore('board', () => {
   const isAlert = ref(false);
   const currentTurn = ref(0);
   const isRotate = ref(false);
+
+  const isCheck = ref(false);
 
   // Overwrite board state
   function updateBoard(newBoard) {
@@ -103,17 +107,41 @@ export const useBoardStore = defineStore('board', () => {
         return el;
       }
       if(item.figure.name === 'king') {
+        // let result = board.value.filter(el => el.figure && el.figure.color !== item.figure.color);
+        // console.log(result);
         if(canKingMove(item, el)) return {...el, isAvailable: true};
         return el;
       }
       return el;
     });
     if(!checkCheck) {
-      board.value = highlightTurns;
-      return;
+      // board.value = highlightTurns;
+      return highlightTurns;
     } else {
-      highlightTurns
+      isCheck.value = highlightTurns.some(el => el.figure && el.isAvailable && el.figure.name === 'king');
+      return;
     }
+  }
+
+  function checkAvailableKingTurns(item) {
+    let allFiguresInEnemyTeamOnBoard = board.value.filter(el => el.figure && el.figure.color !== item.figure.color);
+    let availableKingTurns = checkAvailableTurns(item, false).map(el => {
+      if(!el.isAvailable) return el;
+      if(el.isAvailable) {
+        let result = [];        
+        allFiguresInEnemyTeamOnBoard.forEach(enemyEl => {
+          const availableEnemyTurn = checkAvailableTurns(enemyEl, false);
+          if(enemyEl.figure.name === 'queen'){
+            console.log(availableEnemyTurn);          
+          }
+          let cell = availableEnemyTurn.filter(thisEl => thisEl.x === el.x && thisEl.y === el.y)[0].isAvailable;
+          result.push(cell);          
+        });        
+        if(result.some(el => el === true)) return {...el, isAvailable: false};
+        return {...el, isAvailable: true};
+      }
+    });
+    return availableKingTurns;
   }
 
   //Show alert modal if it's not your turn now, hide it after 1s;
@@ -152,8 +180,13 @@ export const useBoardStore = defineStore('board', () => {
       triggerAlert();
       return;
     }
+    if(item.figure.name === 'king') {
+      board.value = checkAvailableKingTurns(item);
+      currentFigure.value = item;
+      return;
+    }
     currentFigure.value = item;
-    checkAvailableTurns(item, false);
+    board.value = checkAvailableTurns(item, false);
   }
 
   function onDrop(event, item) {
@@ -177,9 +210,13 @@ export const useBoardStore = defineStore('board', () => {
     saveBoard(item);
     currentTurn.value = currentTurn.value + 1;
     updateBoard(boardState.value[currentTurn.value]);
+    checkAvailableTurns({...item, figure: {...currentFigure.value.figure}}, true);
+    if (isCheck.value) {
+      triggerAlert();
+    }
     currentFigure.value = null;
     isWhiteTurn.value = !isWhiteTurn.value;
   }
 
-  return { board, deadFigures, getStartingState, currentTurn, boardState, restartGame, startDrag, onDrop, previousStep, nextStep, isWhiteTurn, isAlert, killedFigures, updateBoard, isRotate, rotateBoard }
+  return { pawnMoves, board, deadFigures, getStartingState, currentTurn, boardState, restartGame, startDrag, onDrop, previousStep, nextStep, isWhiteTurn, isAlert, killedFigures, updateBoard, isRotate, rotateBoard, isCheck }
 });

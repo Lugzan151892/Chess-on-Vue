@@ -12,6 +12,7 @@
         <PopupComponent v-show="store.isAlert">
             <h2 class="title" v-if="store.isWhiteTurn" v-show="store.isAlert">Ход белых</h2>
             <h2 class="title" v-if="!store.isWhiteTurn" v-show="store.isAlert">Ход черных</h2>
+            <h2 class="title" v-if="store.isCheck" v-show="store.isAlert">Шах!</h2>
         </PopupComponent>
         <FiguresPopup>
                 <img class="figure" :key="figure.id" v-for="figure in store.killedFigures" :src='figure.url' :alt='figure.name'>
